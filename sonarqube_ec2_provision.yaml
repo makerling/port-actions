@@ -1,0 +1,100 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to install SonarQube on an EC2 instance with Java 17 and system configurations.
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t2.medium
+    Description: EC2 instance type for SonarQube.
+  
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance.
+
+Resources:
+  SonarQubeInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      ImageId: ami-0c55b159cbfafe1f0 # Amazon Linux 2 AMI (HVM), SSD Volume Type
+      SecurityGroupIds:
+        - !Ref SonarQubeSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -e
+
+          # Update the package repository
+          yum update -y
+
+          # Install Java 17
+          amazon-linux-extras install java-openjdk17 -y
+
+          # Set system configurations
+          echo "vm.max_map_count=524288" >> /etc/sysctl.conf
+          echo "fs.file-max=131072" >> /etc/sysctl.conf
+          sysctl -p
+
+          # Create a user for SonarQube
+          useradd sonar
+
+          # Set limits for the SonarQube user
+          echo "sonar soft nofile 131072" >> /etc/security/limits.conf
+          echo "sonar hard nofile 131072" >> /etc/security/limits.conf
+          echo "sonar soft nproc 8192" >> /etc/security/limits.conf
+          echo "sonar hard nproc 8192" >> /etc/security/limits.conf
+
+          # Download and install SonarQube
+          SONARQUBE_VERSION=2025.1.0.102418
+          wget https://binaries.sonarsource.com/Distribution/sonarqube-${SONARQUBE_VERSION}.zip
+          unzip sonarqube-${SONARQUBE_VERSION}.zip
+          mv sonarqube-${SONARQUBE_VERSION} /opt/sonarqube
+          chown -R sonar:sonar /opt/sonarqube
+
+          # Create a systemd service for SonarQube
+          cat <<EOT >> /etc/systemd/system/sonarqube.service
+          [Unit]
+          Description=SonarQube service
+          After=syslog.target network.target
+
+          [Service]
+          Type=simple
+          User=sonarqube
+          Group=sonarqube
+          PermissionsStartOnly=true
+          ExecStart=/bin/nohup /opt/java/bin/java -Xms32m -Xmx32m -Djava.net.preferIPv4Stack=true -jar /opt/sonarqube/lib/sonar-application-9.9.1.69595.jar
+          StandardOutput=journal
+          LimitNOFILE=131072
+          LimitNPROC=8192
+          TimeoutStartSec=5
+          Restart=always
+          SuccessExitStatus=143
+
+          [Install]
+          WantedBy=multi-user.target
+          EOT
+
+          # Start and enable SonarQube service
+          systemctl enable sonarqube
+          systemctl start sonarqube
+
+  SonarQubeSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable HTTP and SSH access
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0 # Change this to your IP for better security
+        - IpProtocol: tcp
+          FromPort: 9000
+          ToPort: 9000
+          CidrIp: 0.0.0.0/0 # Change this to your IP for better security
+
+Outputs:
+  SonarQubeURL:
+    Description: "URL for SonarQube"
+    Value: !Sub "http://${SonarQubeInstance.PublicIp}:9000"
