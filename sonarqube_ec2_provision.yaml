@@ -46,7 +46,7 @@ Resources:
           echo "sonar hard nproc 8192" >> /etc/security/limits.conf
 
           # Download and install SonarQube
-          SONARQUBE_VERSION=2025.1.0.102418
+          SONARQUBE_VERSION="2025.1.0.102418"
           wget https://binaries.sonarsource.com/Distribution/sonarqube-${SONARQUBE_VERSION}.zip
           unzip sonarqube-${SONARQUBE_VERSION}.zip
           mv sonarqube-${SONARQUBE_VERSION} /opt/sonarqube
