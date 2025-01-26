@@ -7,6 +7,11 @@ Parameters:
     Default: t2.medium
     Description: EC2 instance type for SonarQube.
   
+  SonarQubeVersion:
+    Type: String
+    Default: '2025.1.0.102418'
+    Description: The version of SonarQube to install    
+  
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instance.
@@ -46,7 +51,7 @@ Resources:
           echo "sonar hard nproc 8192" >> /etc/security/limits.conf
 
           # Download and install SonarQube
-          SONARQUBE_VERSION="2025.1.0.102418"
+          SONARQUBE_VERSION=${SonarQubeVersion}
           wget https://binaries.sonarsource.com/Distribution/sonarqube-${SONARQUBE_VERSION}.zip
           unzip sonarqube-${SONARQUBE_VERSION}.zip
           mv sonarqube-${SONARQUBE_VERSION} /opt/sonarqube
