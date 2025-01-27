@@ -1,5 +1,5 @@
 .env
-.terraform.lock.hcl
-.terraform/*
+*.terraform.lock.hcl
+terraform-for-sonarqube-server/.terraform/*
 *.tfstate
 *.backup
