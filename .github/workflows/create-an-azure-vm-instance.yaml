@@ -27,18 +27,6 @@ jobs:
         with:
           terraform_version: 1.10.5
 
-      - name: Terraform init
-        id: init
-        run: terraform init
-
-      - name: Terraform format
-        id: fmt
-        run: terraform fmt -check
-      
-      - name: Terraform validate
-        id: validate
-        run: terraform validate
-
       - name: Run Terraform Plan and Apply (Azure)
         id: plan-azure
         env: 
@@ -52,6 +40,8 @@ jobs:
             TF_VAR_resource_group_name: ${{ secrets.AZURE_RESOURCE_GROUP }}
         run: |
           cd terraform
+          terraform init
+          terraform validate
           terraform plan \
             -input=false \
             -out=tfazure-${GITHUB_RUN_NUMBER}.tfplan \
@@ -61,7 +51,7 @@ jobs:
 
           terraform apply -auto-approve -input=false tfazure-${GITHUB_RUN_NUMBER}.tfplan
 
-      - name: Terraform Azure Status
+      - name: Terraform Port Status
         if: steps.plan-azure.outcome == 'failure'
         run: exit 1
 
