@@ -1,0 +1,100 @@
+name: Provision AN EC2 Instance
+
+on:
+  workflow_dispatch:
+    inputs:
+      vm_admin_password:
+        description: Azure VM Admin Password
+        required: true
+        type: string
+      sonarqube_version:
+        description: SonarQube Version
+        required: true
+        default: "9.9.8.100196"
+        type: string
+      port_context:
+        required: true
+        description: includes blueprint, run ID, and entity identifier from Port.
+jobs:
+  provision-azure-vm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository to the runner
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform with specified version on the runner
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.10.5
+
+      - name: Terraform init
+        id: init
+        run: terraform init
+
+      - name: Terraform format
+        id: fmt
+        run: terraform fmt -check
+      
+      - name: Terraform validate
+        id: validate
+        run: terraform validate
+
+      - name: Run Terraform Plan and Apply (Azure)
+        id: plan-azure
+        env: 
+            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+            TF_VAR_port_client_id: ${{ secrets.PORT_CLIENT_ID }}
+            TF_VAR_port_client_secret: ${{ secrets.PORT_CLIENT_SECRET }}
+            TF_VAR_port_run_id: ${{ fromJson(inputs.port_context).runId }}
+            TF_VAR_resource_group_name: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        run: |
+          terraform plan \
+            -input=false \
+            -out=tfazure-${GITHUB_RUN_NUMBER}.tfplan \
+            -var="admin_password=${{ github.event.inputs.vm_admin_password }}" \
+            -var="sq_version=${{ github.event.inputs.sonarqube_version }}" \
+            -target=azurerm_virtual_machine_extension.script
+
+          terraform apply -auto-approve -input=false tfazure-${GITHUB_RUN_NUMBER}.tfplan
+
+      - name: Terraform Azure Status
+        if: steps.plan-azure.outcome == 'failure'
+        run: exit 1
+
+      - name: Run Terraform Plan and Apply (Port)
+        id: plan-port
+        env: 
+            ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+            ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+            ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+            ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+            TF_VAR_port_client_id: ${{ secrets.PORT_CLIENT_ID }}
+            TF_VAR_port_client_secret: ${{ secrets.PORT_CLIENT_SECRET }}
+            TF_VAR_port_run_id: ${{fromJson(inputs.port_context).runId}}
+            TF_VAR_resource_group_name: ${{ secrets.AZURE_RESOURCE_GROUP }}
+        run: |
+          terraform plan \
+            -input=false \
+            -out=tfport-${GITHUB_RUN_NUMBER}.tfplan \
+            -var="admin_password=${{ github.event.inputs.vm_admin_password }}" \
+            -var="sq_version=${{ github.event.inputs.sonarqube_version }}"
+
+          terraform apply -auto-approve -input=false tfport-${GITHUB_RUN_NUMBER}.tfplan
+
+      - name: Terraform Port Status
+        if: steps.plan-port.outcome == 'failure'
+        run: exit 1
+
+      - name: Create a log message
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          baseUrl: https://api.getport.io
+          operation: PATCH_RUN
+          status: "SUCCESS"
+          runId: ${{fromJson(inputs.port_context).runId}}
+          logMessage: Created 'sonar-server' VM with ${{ inputs.sonarqube_version }}
