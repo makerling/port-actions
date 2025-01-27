@@ -1,7 +1,7 @@
 provider "azurerm" {
   # skip_provider_registration = "true"
   subscription_id = "4bf2f5ef-072c-475b-aa17-5accdfbe769f"
-  resource_provider_registrations = "none"
+  # resource_provider_registrations = "none" - only needed for sandbox
   features {}
 }
 

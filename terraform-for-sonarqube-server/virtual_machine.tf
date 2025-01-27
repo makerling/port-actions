@@ -1,9 +1,3 @@
-variable "admin_password" {
-  description = "The admin password for the VM"
-  type        = string
-  sensitive   = true
-}
-
 resource "azurerm_linux_virtual_machine" "main" {
   name                              = "sonar-server"
   resource_group_name               = data.azurerm_resource_group.rg.name
@@ -41,8 +35,8 @@ resource "azurerm_virtual_machine_extension" "script" {
 
   settings = <<SETTINGS
     {
-        "fileUris" : ["https://sqsandboxpostdeployment.blob.core.windows.net/bashfile/postdeploy6.sh?sp=r&st=2025-01-27T03:06:20Z&se=2025-03-01T11:06:20Z&spr=https&sv=2022-11-02&sr=b&sig=mCk0Maqj6PDvUnAR%2Be1vnwZP1MS55nXh7oYgugdZc%2F0%3D"],
-        "commandToExecute": "bash postdeploy6.sh"
+        "fileUris" : ["https://sqsandboxpostdeployment.blob.core.windows.net/bashfile/postdeploy.sh?sp=r&st=2025-01-27T11:37:40Z&se=2025-06-01T18:37:40Z&spr=https&sv=2022-11-02&sr=b&sig=1s0SwPWqMaeeKCjGBiLyfbMUPLTY3VoqgwUje0WF%2BrY%3D"],
+        "commandToExecute": "bash postdeploy.sh ${var.sq_version}"
     }
 SETTINGS
 

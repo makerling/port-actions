@@ -1,6 +1,12 @@
 #!/bin/bash
-# Update and install prerequisites
+
+# start logging
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+
+# command-line arguments from terraform
+SQ_VERSION="${1}" # 2025.1.0.102418
+
+# Update and install prerequisites
 sudo apt-get update
 sudo apt-get install -y openjdk-17-jdk wget unzip ca-certificates curl
 
@@ -23,9 +29,9 @@ cat /etc/sysctl.conf
 
 # Download and install SonarQube            
 echo "downloading SonarQube:"
-wget https://binaries.sonarsource.com/CommercialDistribution/sonarqube-enterprise/sonarqube-enterprise-2025.1.0.102418.zip
-unzip sonarqube-enterprise-2025.1.0.102418.zip
-sudo mv sonarqube-2025.1.0.102418 /opt/sonarqube
+wget https://binaries.sonarsource.com/CommercialDistribution/sonarqube-enterprise/sonarqube-enterprise-${SQ_VERSION}.zip
+unzip sonarqube-enterprise-${SQ_VERSION}.zip
+sudo mv sonarqube-${SQ_VERSION} /opt/sonarqube
 
 sudo groupadd sonar
 sudo useradd -d /opt/sonarqube -g sonar sonar
