@@ -46,8 +46,7 @@ jobs:
             -input=false \
             -out=tfazure-${GITHUB_RUN_NUMBER}.tfplan \
             -var="admin_password=${{ github.event.inputs.vm_admin_password }}" \
-            -var="sq_version=${{ github.event.inputs.sonarqube_version }}" \
-            -target=azurerm_virtual_machine_extension.script
+            -var="sq_version=${{ github.event.inputs.sonarqube_version }}"
 
           terraform apply -auto-approve -input=false tfazure-${GITHUB_RUN_NUMBER}.tfplan
 
