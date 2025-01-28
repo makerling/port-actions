@@ -98,6 +98,7 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           status: "SUCCESS"
+          summary: "Created a new Sandbox environment in Azure with associated new network infrastructure, [Link](https://portal.azure.com/#@azurefreetrialmsvanderling.onmicrosoft.com/resource/subscriptions/4bf2f5ef-072c-475b-aa17-5accdfbe769f/resourceGroups/SonarQubeSandbox/providers/Microsoft.Compute/virtualMachines/sonar-server)"
           runId: ${{ fromJson(inputs.port_context).run_id }}
           logMessage: Successfully created 'sonar-server' VM with SonarQube version ${{ inputs.sonarqube_version }}
         
