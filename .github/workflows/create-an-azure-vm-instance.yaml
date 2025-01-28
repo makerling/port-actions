@@ -1,4 +1,4 @@
-name: Provision AN EC2 Instance
+name: Provision an Azure Instance
 
 on:
   workflow_dispatch:
