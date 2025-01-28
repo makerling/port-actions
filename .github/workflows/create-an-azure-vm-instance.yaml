@@ -30,7 +30,7 @@ jobs:
           operation: PATCH_RUN
           runId: ${{ fromJson(inputs.port_context).run_id }}
           logMessage: |
-              About to create ec2 instance 'sonar-server' .. ⛴️
+              About to create Azure VM instance 'sonar-server' with SonarQube version ${{ github.event.inputs.sonarqube_version }} .. ⛴️
 
 
       - name: Setup Terraform with specified version on the runner
@@ -99,4 +99,5 @@ jobs:
           operation: PATCH_RUN
           status: "SUCCESS"
           runId: ${{ fromJson(inputs.port_context).run_id }}
-          logMessage: Created 'sonar-server' VM with ${{ inputs.sonarqube_version }}
+          logMessage: Successfully created 'sonar-server' VM with SonarQube version ${{ inputs.sonarqube_version }}
+        
