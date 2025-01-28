@@ -47,7 +47,7 @@ Type=simple
 User=sonar
 Group=sonar
 PermissionsStartOnly=true
-ExecStart=/bin/nohup /usr/bin/java -Xms32m -Xmx32m -Djava.net.preferIPv4Stack=true -jar /opt/sonarqube/lib/sonar-application-2025.1.0.102418.jar
+ExecStart=/bin/nohup /usr/bin/java -Xms32m -Xmx32m -Djava.net.preferIPv4Stack=true -jar /opt/sonarqube/lib/sonar-application-${SQ_VERSION}.jar
 StandardOutput=journal
 LimitNOFILE=131072
 LimitNPROC=8192
