@@ -25,8 +25,3 @@ variable "port_client_secret" {
     type        = string
     description = "The Port client secret"
 }
-
-variable "base_url" {
-    type        = string
-    description = "The Port API URL"
-}
