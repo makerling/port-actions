@@ -129,19 +129,19 @@ resource "azurerm_linux_virtual_machine" "main" {
   }
 }
 
-resource "azurerm_virtual_machine_extension" "script" {
-  name                 = "script-extension"
-  virtual_machine_id   = azurerm_linux_virtual_machine.main.id
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.1"
+# resource "azurerm_virtual_machine_extension" "script" {
+#   name                 = "script-extension"
+#   virtual_machine_id   = azurerm_linux_virtual_machine.main.id
+#   publisher            = "Microsoft.Azure.Extensions"
+#   type                 = "CustomScript"
+#   type_handler_version = "2.1"
 
-  settings = <<SETTINGS
-    {
-        "fileUris" : ["https://sqsandboxpostdeployment.blob.core.windows.net/bashfile/postdeploy.sh?sp=r&st=2025-01-27T11:37:40Z&se=2025-06-01T18:37:40Z&spr=https&sv=2022-11-02&sr=b&sig=1s0SwPWqMaeeKCjGBiLyfbMUPLTY3VoqgwUje0WF%2BrY%3D"],
-        "commandToExecute": "bash postdeploy.sh ${var.sq_version}"
-    }
-SETTINGS
+#   settings = <<SETTINGS
+#     {
+#         "fileUris" : ["https://sqsandboxpostdeployment.blob.core.windows.net/bashfile/postdeploy.sh?sp=r&st=2025-01-27T11:37:40Z&se=2025-06-01T18:37:40Z&spr=https&sv=2022-11-02&sr=b&sig=1s0SwPWqMaeeKCjGBiLyfbMUPLTY3VoqgwUje0WF%2BrY%3D"],
+#         "commandToExecute": "bash postdeploy.sh ${var.sq_version}"
+#     }
+# SETTINGS
 
-  depends_on = [azurerm_linux_virtual_machine.main]
-}
+#   depends_on = [azurerm_linux_virtual_machine.main]
+# }

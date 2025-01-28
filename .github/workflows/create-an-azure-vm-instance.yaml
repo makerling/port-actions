@@ -22,6 +22,17 @@ jobs:
       - name: Checkout the repository to the runner
         uses: actions/checkout@v4
 
+      - name: Log starting of Azure VM Instance creation 
+        uses: port-labs/port-github-action@v1
+        with:
+          clientId: ${{ secrets.PORT_CLIENT_ID }}
+          clientSecret: ${{ secrets.PORT_CLIENT_SECRET }}
+          operation: PATCH_RUN
+          runId: ${{ fromJson(inputs.port_context).run_id }}
+          logMessage: |
+              About to create ec2 instance 'sonar-server' .. ⛴️
+
+
       - name: Setup Terraform with specified version on the runner
         uses: hashicorp/setup-terraform@v2
         with:
@@ -36,7 +47,7 @@ jobs:
             ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
             TF_VAR_port_client_id: ${{ secrets.PORT_CLIENT_ID }}
             TF_VAR_port_client_secret: ${{ secrets.PORT_CLIENT_SECRET }}
-            TF_VAR_port_run_id: ${{ fromJson(inputs.port_context).runId }}
+            TF_VAR_port_run_id: ${{ fromJson(inputs.port_context).run_id }}
             TF_VAR_resource_group_name: ${{ secrets.AZURE_RESOURCE_GROUP }}
         run: |
           cd terraform
@@ -63,7 +74,7 @@ jobs:
             ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
             TF_VAR_port_client_id: ${{ secrets.PORT_CLIENT_ID }}
             TF_VAR_port_client_secret: ${{ secrets.PORT_CLIENT_SECRET }}
-            TF_VAR_port_run_id: ${{ fromJson(inputs.port_context).runId }}
+            TF_VAR_port_run_id: ${{ fromJson(inputs.port_context).run_id }}
             TF_VAR_resource_group_name: ${{ secrets.AZURE_RESOURCE_GROUP }}
         run: |
           cd terraform
@@ -87,5 +98,5 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           status: "SUCCESS"
-          runId: ${{ fromJson(inputs.port_context).runId }}
+          runId: ${{ fromJson(inputs.port_context).run_id }}
           logMessage: Created 'sonar-server' VM with ${{ inputs.sonarqube_version }}
