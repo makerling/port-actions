@@ -30,7 +30,7 @@ jobs:
           operation: PATCH_RUN
           runId: ${{ fromJson(inputs.port_context).run_id }}
           logMessage: |
-              About to create Azure VM instance 'sonar-server' with SonarQube version ${{ github.event.inputs.sonarqube_version }} .. ⛴️
+              About to create Azure VM instance ${{ github.event.inputs.vm_name_prefix }}-sonar-server with SonarQube version ${{ github.event.inputs.sonarqube_version }} .. ⛴️
 
       - name: Setup Terraform with specified version on the runner
         uses: hashicorp/setup-terraform@v2
@@ -103,5 +103,5 @@ jobs:
           status: "SUCCESS"
           summary: "Created a new Sandbox environment in Azure with associated new network infrastructure"
           runId: ${{ fromJson(inputs.port_context).run_id }}
-          logMessage: Successfully created 'sonar-server' VM with SonarQube version ${{ inputs.sonarqube_version }}. [Link](https://portal.azure.com/#@azurefreetrialmsvanderling.onmicrosoft.com/resource/subscriptions/4bf2f5ef-072c-475b-aa17-5accdfbe769f/resourceGroups/SonarQubeSandbox/providers/Microsoft.Compute/virtualMachines/sonar-server)
+          logMessage: Successfully created ${{ github.event.inputs.vm_name_prefix }}-sonar-server VM with SonarQube version ${{ inputs.sonarqube_version }}. [Link](https://portal.azure.com/#@azurefreetrialmsvanderling.onmicrosoft.com/resource/subscriptions/4bf2f5ef-072c-475b-aa17-5accdfbe769f/resourceGroups/SonarQubeSandbox/providers/Microsoft.Compute/virtualMachines/sonar-server)
         

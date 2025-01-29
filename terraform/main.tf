@@ -101,7 +101,7 @@ resource "azurerm_network_interface_security_group_association" "sg_assoc" {
 }
 
 resource "azurerm_linux_virtual_machine" "main" {
-  name                              = "${var.vm_name_prefix}_sonar-server"
+  name                              = "${var.vm_name_prefix}-sonar-server"
   resource_group_name               = data.azurerm_resource_group.rg.name
   location                          = data.azurerm_resource_group.rg.location
   size                              = "Standard_D2s_v3"
