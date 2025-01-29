@@ -3,8 +3,8 @@ name: Provision an Azure Instance
 on:
   workflow_dispatch:
     inputs:
-      vm_admin_password:
-        description: Azure VM Admin Password
+      vm_name_prefix:
+        description: Azure VM name prefix
         required: true
         type: string
       sonarqube_version:
@@ -49,6 +49,7 @@ jobs:
             TF_VAR_port_client_secret: ${{ secrets.PORT_CLIENT_SECRET }}
             TF_VAR_port_run_id: ${{ fromJson(inputs.port_context).run_id }}
             TF_VAR_resource_group_name: ${{ secrets.AZURE_RESOURCE_GROUP }}
+            SQ_VM_ADMIN_PASSWORD: ${{ secrets.SQ_VM_ADMIN_PASSWORD }}
         run: |
           cd terraform
           terraform init
@@ -56,7 +57,7 @@ jobs:
           terraform plan \
             -input=false \
             -out=tfazure-${GITHUB_RUN_NUMBER}.tfplan \
-            -var="admin_password=${{ github.event.inputs.vm_admin_password }}" \
+            -var="admin_password=${{ secrets.SQ_VM_ADMIN_PASSWORD }}" \
             -var="sq_version=${{ github.event.inputs.sonarqube_version }}"
 
           terraform apply -auto-approve -input=false tfazure-${GITHUB_RUN_NUMBER}.tfplan
@@ -76,12 +77,13 @@ jobs:
             TF_VAR_port_client_secret: ${{ secrets.PORT_CLIENT_SECRET }}
             TF_VAR_port_run_id: ${{ fromJson(inputs.port_context).run_id }}
             TF_VAR_resource_group_name: ${{ secrets.AZURE_RESOURCE_GROUP }}
+            SQ_VM_ADMIN_PASSWORD: ${{ secrets.SQ_VM_ADMIN_PASSWORD }}
         run: |
           cd terraform
           terraform plan \
             -input=false \
             -out=tfport-${GITHUB_RUN_NUMBER}.tfplan \
-            -var="admin_password=${{ github.event.inputs.vm_admin_password }}" \
+            -var="admin_password=${{ secrets.SQ_VM_ADMIN_PASSWORD }}" \
             -var="sq_version=${{ github.event.inputs.sonarqube_version }}"
 
           terraform apply -auto-approve -input=false tfport-${GITHUB_RUN_NUMBER}.tfplan
@@ -98,7 +100,7 @@ jobs:
           baseUrl: https://api.getport.io
           operation: PATCH_RUN
           status: "SUCCESS"
-          summary: "Created a new Sandbox environment in Azure with associated new network infrastructure, [Link](https://portal.azure.com/#@azurefreetrialmsvanderling.onmicrosoft.com/resource/subscriptions/4bf2f5ef-072c-475b-aa17-5accdfbe769f/resourceGroups/SonarQubeSandbox/providers/Microsoft.Compute/virtualMachines/sonar-server)"
+          summary: "Created a new Sandbox environment in Azure with associated new network infrastructure"
           runId: ${{ fromJson(inputs.port_context).run_id }}
-          logMessage: Successfully created 'sonar-server' VM with SonarQube version ${{ inputs.sonarqube_version }}
+          logMessage: Successfully created 'sonar-server' VM with SonarQube version ${{ inputs.sonarqube_version }}. [Link](https://portal.azure.com/#@azurefreetrialmsvanderling.onmicrosoft.com/resource/subscriptions/4bf2f5ef-072c-475b-aa17-5accdfbe769f/resourceGroups/SonarQubeSandbox/providers/Microsoft.Compute/virtualMachines/sonar-server)
         
