@@ -19,21 +19,21 @@ data "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-static-website"
+  name                = "${var.vm_name_prefix}_vnet-static-website"
   address_space       = ["10.0.0.0/16"]
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
 }
 
 resource "azurerm_subnet" "subnet1" {
-  name                 = "vm_subnet_${var.vm_name_prefix}"
+  name                 = "${var.vm_name_prefix}_vm_subnet"
   resource_group_name  = data.azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 
 resource "azurerm_network_security_group" "net_sg" {
-  name                = "network_sg"
+  name                = "${var.vm_name_prefix}_network_sg"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
 
@@ -76,14 +76,14 @@ resource "azurerm_network_security_group" "net_sg" {
 }
 
 resource "azurerm_public_ip" "publicip" {
-  name                = "publicip-vm"
+  name                = "${var.vm_name_prefix}_publicip-vm"
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "vmnic" {
-  name                = "vmnic"
+  name                = "${var.vm_name_prefix}_vmnic"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
 
@@ -101,7 +101,7 @@ resource "azurerm_network_interface_security_group_association" "sg_assoc" {
 }
 
 resource "azurerm_linux_virtual_machine" "main" {
-  name                              = "sonar-server"
+  name                              = "${var.vm_name_prefix}_sonar-server"
   resource_group_name               = data.azurerm_resource_group.rg.name
   location                          = data.azurerm_resource_group.rg.location
   size                              = "Standard_D2s_v3"
