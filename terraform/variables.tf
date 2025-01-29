@@ -5,6 +5,13 @@ variable "sq_version" {
   default       = "2025.1.0.102418"
 }
 
+variable "vm_name_prefix" {
+  description   = "prefix of SonarQube chosen by front end"
+  type          = string
+  sensitive     = false
+  default       = "johndoe"
+}
+
 variable "admin_password" {
   description = "The admin password for the VM"
   type        = string
